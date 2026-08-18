@@ -1,0 +1,29 @@
+name: Build YouSpeed
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup Theos
+        uses: theos/action-setup-theos@v1
+
+      - name: Compile Dylib
+        run: |
+          make FINALPACKAGE=1
+          mkdir -p output
+          # Tìm và sao chép file .dylib vừa compile
+          find .theos -name "*.dylib" -exec cp {} output/ \;
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: YouSpeed-Dylib
+          path: output/*.dylib
